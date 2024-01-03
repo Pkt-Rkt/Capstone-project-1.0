@@ -2,22 +2,22 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const dotenv = require("dotenv");
 dotenv.config();
 
-class TherapistController {
-  constructor() {
-    this.genAI = new GoogleGenerativeAI(process.env.API_KEY);
+class AIModel {
+  constructor(apiKey) {
+    this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
-  async getTherapistResponse(input) {
+  async generateResponse(input) {
     const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
     const result = await model.generateContentStream([input]);
 
-    let therapistResponse = "";
+    let response = '';
     for await (const chunk of result.stream) {
-      therapistResponse += chunk.text();
+      response += chunk.text();
     }
 
-    return therapistResponse;
+    return response;
   }
 }
 
-module.exports = TherapistController;
+module.exports = AIModel;

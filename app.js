@@ -1,31 +1,11 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const TherapistController = require("./controllers/therapist");
+const AIModel = require("./models/aiModel");
+const ConsoleView = require("./views/consoleView");
+const ChatController = require("./controllers/chatController");
+const dotenv = require("dotenv");
+dotenv.config();
 
-const app = express();
-const therapistController = new TherapistController();
+const apiKey = process.env.API_KEY;
 
-// Set up middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Set up view engine
-app.set("view engine", "ejs");
-app.set("views", "./views");
-
-// Routes
-app.get("/", (req, res) => {
-  res.render("index", { response: null });
-});
-
-app.post("/", async (req, res) => {
-  const userInput = req.body.userInput;
-  const therapistResponse = await therapistController.getTherapistResponse(userInput);
-
-  res.render("index", { response: therapistResponse });
-});
-
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+const model = new AIModel(apiKey);
+const view = new ConsoleView();
+const controller = new ChatController(model, view);
