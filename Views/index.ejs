@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Therapist Chat</title>
+</head>
+<body>
+  <h1>Personal Therapist</h1>
+  
+  <form method="POST">
+    <label for="userInput">You:</label>
+    <input type="text" id="userInput" name="userInput" required>
+    <button type="submit">Send</button>
+  </form>
+
+  <% if (response !== null) { %>
+    <div>
+      <p>Therapist:</p>
+      <p><%= response %></p>
+    </div>
+  <% } %>
+
+</body>
+</html>
