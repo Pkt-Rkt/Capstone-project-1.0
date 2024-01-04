@@ -6,10 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const messageDiv = document.createElement("div");
         messageDiv.className = isUser ? "user-message" : "bot-message";
         messageDiv.textContent = message;
-        chatBox.appendChild(messageDiv);
-
-        // Scroll to the bottom of the chat box
-        chatBox.scrollTop = chatBox.scrollHeight;
+        chatBox.insertBefore(messageDiv, chatBox.firstChild); // Insert the new message at the beginning
+        chatBox.scrollTop = 0; // Scroll to the top to keep the newest message at the bottom
     }
 
     async function sendMessage() {

@@ -4,24 +4,49 @@ body {
     padding: 0;
 }
 
+.row {
+    height: 100vh; /* Make the row take the full height of the viewport */
+    display: flex; /* Use flexbox for better control */
+}
+
+.col-lg-2 {
+    display: flex;
+    flex-direction: column;
+}
+
 .chat-container {
-    max-width: 600px;
-    margin: 20px auto;
+    flex: 1; /* Make the chat container flex to fill available space */
+    display: flex;
+    flex-direction: column;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: 100%; /* Make the chat container fill the entire height */
+    overflow-y: hidden; /* Hide the overflow for smooth scrolling */
 }
 
-#chat-box {
-    height: 300px;
-    overflow-y: scroll;
-    border-bottom: 1px solid #ccc;
-    margin-bottom: 10px;
+.chat-box {
+    flex: 1; /* Allow the chat-box to take up remaining space */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse; /* Reverse the order of messages */
+}
+
+.chat-message {
+    background-color: #e5e5ea;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    align-self: flex-start; /* Align user messages to the left */
+}
+
+.user-input-container {
+    display: flex;
 }
 
 #user-input {
-    width: 80%;
+    flex: 1; /* Allow the input to grow and take available space */
     padding: 8px;
     margin-right: 8px;
 }
