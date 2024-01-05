@@ -19,9 +19,9 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid #ffffff;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     height: 100%; /* Make the chat container fill the entire height */
     overflow-y: hidden; /* Hide the overflow for smooth scrolling */
 }
@@ -42,16 +42,33 @@ body {
 }
 
 .user-input-container {
+    position: relative;
     display: flex;
+    align-items: center; /* Center items vertically */
 }
 
 #user-input {
-    flex: 1; /* Allow the input to grow and take available space */
-    padding: 8px;
+    flex: 1;
+    padding: 10px;
     margin-right: 8px;
+    border-radius: 50px;
+    background-color: #f0f0f0;
+    overflow-wrap: break-word;
 }
 
-button {
-    padding: 8px;
+#send-button {
+    position: absolute;
+    top: 50%;
+    right: 12px; /* Adjust as needed */
+    transform: translateY(-50%);
+    background-color: rgba(114, 197, 167, 0.8); /* Adjust the RGB values and alpha channel (0.8 for 80% opacity) */
+    width: 40px; /* Set a fixed width */
+    height: 40px; /* Set a fixed height */
+    border-radius: 50%; /* Make it a circle */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-size: 10px;
     cursor: pointer;
 }
+

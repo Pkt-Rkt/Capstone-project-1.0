@@ -15,23 +15,24 @@
         <!-- Sidebar with logo and options -->
         <div class="col-lg-2 bg-light">
             <div class="mt-4 mb-4">
-                <img src="pathtologo.png" alt="Logo" class="img-fluid mx-auto d-block">
+                <img src="./img/Luna.svg" alt="Logo" class="img-fluid mx-auto d-block">
             </div>
             <button class="btn btn-primary btn-block mb-2">Profile</button>
             <button class="btn btn-primary btn-block">History</button>
         </div>
 
-<!-- Chatbox -->
-<div class="col-lg-10">
-    <div class="chat-container">
-        <div id="chat-box" class="chat-box"></div>
-        <div class="user-input-container">
-            <input type="text" id="user-input" placeholder="Type your message..." class="form-control mb-2">
-            <button onclick="sendMessage()" class="btn btn-primary btn-block">Send</button>
+        <!-- Chatbox -->
+        <div class="col-lg-10">
+            <div class="chat-container">
+                <div id="chat-box" class="chat-box"></div>
+                <div class="user-input-container">
+                    <input type="text" id="user-input" placeholder="Type your message...">
+                    <button id="send-button" class="button"></button>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
+    </div>
 </div>
 
 <script src="script.js"></script>

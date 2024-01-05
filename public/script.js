@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function sendMessage() {
+        console.log("sendMessage function is triggered");
         const userMessage = userInput.value.trim();
         if (userMessage !== "") {
             appendMessage(`You: ${userMessage}`, true);
