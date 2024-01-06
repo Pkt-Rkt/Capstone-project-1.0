@@ -9,10 +9,10 @@ document.addEventListener("DOMContentLoaded", function () {
         messageDiv.textContent = message;
 
         // Add chat bubble styles
-        messageDiv.className = isUser ? "chat-bubble user-bubble" : "chat-bubble ai-bubble";
+        messageDiv.className = isUser ? "chat-bubble ai-bubble" : "chat-bubble user-bubble";
 
         // Align user messages to the right and AI messages to the left
-        messageDiv.style.textAlign = isUser ? "right" : "left";
+        messageDiv.style.textAlign = isUser ? "left" : "left";
 
         chatBox.insertBefore(messageDiv, chatBox.firstChild);
         chatBox.scrollTop = 0;
@@ -21,10 +21,10 @@ document.addEventListener("DOMContentLoaded", function () {
     async function sendMessage() {
         const userMessage = userInput.value.trim();
         userInput.value = ""; // Clear the user input immediately
-
+    
         if (userMessage !== "") {
-            appendMessage(`${userMessage}`, true);
-
+            appendMessage(`${userMessage}`, true); // Set the 'isUser' parameter to true for user messages
+    
             try {
                 const response = await fetch("/api/sendMessage", {
                     method: "POST",
@@ -33,14 +33,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     body: JSON.stringify({ message: userMessage }),
                 });
-
+    
                 if (!response.ok) {
                     throw new Error("Failed to get AI response");
                 }
-
+    
                 const data = await response.json();
                 const botResponse = `Luna: ${data.response}`;
-                appendMessage(botResponse, false);
+                appendMessage(botResponse, false); // 'isUser' is false for AI responses
             } catch (error) {
                 console.error("Error:", error.message);
             }
