@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
         messageDiv.textContent = message;
 
         // Add chat bubble styles
-        messageDiv.className = isUser ? "chat-bubble ai-bubble" : "chat-bubble user-bubble";
+        messageDiv.className = isUser ? "chat-bubble user-bubble" : "chat-bubble ai-bubble";
 
         // Align user messages to the right and AI messages to the left
         messageDiv.style.textAlign = isUser ? "left" : "left";

@@ -86,19 +86,19 @@ body {
 }
 
 .user-bubble {
-    background-color: #4caf50; /* Change the background color as needed */
+    background-color: #2196f3; /* Change the background color as needed */
     color: white;
     padding: 10px 15px; /* Adjust padding to your preference */
-    margin-left: 10px; /* Add margin to separate bubbles */
+    margin-left: auto; /* Align AI bubbles to the right */
     word-wrap: break-word; /* Allow words to break if they exceed the width */
     text-align: left; /* Align text to the left */
 }
 
 .ai-bubble {
-    background-color: #2196f3; /* Change the background color as needed */
+    background-color: #4caf50; /* Change the background color as needed */
     color: white;
     padding: 10px 15px; /* Adjust padding to your preference */
-    margin-left: auto; /* Align AI bubbles to the right */
+    margin-left: 10px; /* Add margin to separate bubbles */
     word-wrap: break-word; /* Allow words to break if they exceed the width */
     text-align: left; /* Align text to the left */
 }
