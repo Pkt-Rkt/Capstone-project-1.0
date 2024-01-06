@@ -9,31 +9,34 @@
 </head>
 <body>
 
-<div class="container-fluid">
-    <div class="row">
-
-        <!-- Sidebar with logo and options -->
-        <div class="col-lg-2 bg-light">
-            <div class="mt-4 mb-4">
-                <img src="./img/Luna.svg" alt="Logo" class="img-fluid mx-auto d-block">
+    <div class="container-fluid">
+        <div class="row">
+    
+            <!-- Sidebar with logo and options -->
+            <div class="col-lg-2 bg-light">
+                <div class="mt-4 mb-4">
+                    <img src="./img/Luna.svg" alt="Logo" class="img-fluid mx-auto d-block">
+                </div>
+                <button class="btn btn-primary btn-block mb-2">Profile</button>
+                <button class="btn btn-primary btn-block">History</button>
             </div>
-            <button class="btn btn-primary btn-block mb-2">Profile</button>
-            <button class="btn btn-primary btn-block">History</button>
-        </div>
-
-        <!-- Chatbox -->
-        <div class="col-lg-10">
-            <div class="chat-container">
-                <div id="chat-box" class="chat-box"></div>
-                <div class="user-input-container">
-                    <textarea id="user-input" placeholder="Type your message..."></textarea>
-                    <button id="send-button" class="button" type="button"></button>
+    
+            <!-- Chatbox -->
+            <div class="col-lg-10">
+                <div class="chat-box-container">
+                    <!-- Add the gradient overlay here -->
+                    <div class="gradient-overlay"></div>
+                    <div id="chat-box" class="chat-box"></div>
+                    <div class="user-input-container">
+                        <textarea id="user-input" placeholder="Type your message..."></textarea>
+                        <button id="send-button" class="button" type="button"></button>
+                    </div>
                 </div>
             </div>
+    
         </div>
     </div>
-</div>
-
-<script src="script.js"></script>
+    
+    <script src="script.js"></script>
 </body>
 </html>

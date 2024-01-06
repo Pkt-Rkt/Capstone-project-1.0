@@ -1,29 +1,45 @@
-body {
-    font-family: Arial, sans-serif;
+html, body {
+    height: 100%;
     margin: 0;
-    padding: 0;
+    overflow: hidden;
+}
+
+.container-fluid {
+    height: 100%;
 }
 
 .row {
-    height: 100vh;
+    height: 100%;
     display: flex;
 }
 
 .col-lg-2 {
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
-.chat-container {
-    flex: 1;
+.chat-box-container {
     display: flex;
     flex-direction: column;
+    height: 100vh;
     padding: 20px;
     border: 1px solid #ffffff;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    height: 100%;
-    overflow-y: hidden;
+    overflow-y: auto;
+    position: relative;
+}
+
+.chat-box-container::before {
+    content: "";
+    position: absolute;
+    top: 19px;
+    left: 0;
+    right: 0;
+    height: 70px; /* Adjust the height of the gradient overlay as needed */
+    background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 50%, rgb(255, 255, 255) 100%);
+    z-index: 1; /* Ensure the gradient is on top of the messages */
 }
 
 .chat-box {
@@ -31,6 +47,23 @@ body {
     overflow-y: auto;
     display: flex;
     flex-direction: column-reverse;
+    padding: 10px;
+    position: relative;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.chat-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.chat-box::-webkit-scrollbar-track {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
 }
 
 .chat-message {
@@ -49,15 +82,32 @@ body {
 
 #user-input {
     flex: 1;
-    padding: 10px;
+    padding: 20px 60px 20px 30px; /* top, right, bottom, left padding */
     margin-right: 8px;
     border-radius: 50px;
     background-color: #f0f0f0;
     overflow-wrap: break-word;
     resize: none;
-    overflow-y: hidden;
+    overflow-y: auto; /* Keep the scroll functionality */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: transparent transparent; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+    scrollbar-face-color: transparent; /* IE */
+    scrollbar-track-color: transparent; /* IE */
     transition: height 0.3s ease;
-    border: none; /* Remove border for input */
+    border: none;
+    line-height: 1.4; /* Adjust this value as needed */
+    max-height: 5em; /* Set a maximum height for the user input box (5 lines) */
+}
+
+#user-input::-webkit-scrollbar {
+    display: none; /* WebKit */
+}
+
+
+#user-input::placeholder {
+    color: #888;
+    line-height: inherit;
 }
 
 #send-button {
@@ -93,7 +143,7 @@ body {
     padding: 10px 15px;
     margin-left: auto;
     word-wrap: break-word;
-    text-align: left;
+    text-align: right; /* Adjusted to right for user messages */
 }
 
 .ai-bubble {

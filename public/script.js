@@ -4,19 +4,33 @@ document.addEventListener("DOMContentLoaded", function () {
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
 
+    // Set a maximum height for the user input box (5 lines)
+    const maxInputHeight = 5 * parseFloat(getComputedStyle(userInput).lineHeight);
     function appendMessage(message, isUser) {
         const messageDiv = document.createElement("div");
         messageDiv.textContent = message;
-
+    
         // Add chat bubble styles
         messageDiv.className = isUser ? "chat-bubble user-bubble" : "chat-bubble ai-bubble";
-
-        // Align user messages to the right and AI messages to the left
-        messageDiv.style.textAlign = isUser ? "right" : "left";
-
+    
+        // Align user messages and AI messages both align to the left
+        messageDiv.style.textAlign = isUser ? "left" : "left";
+    
+        // Add the message to the chat box
         chatBox.insertBefore(messageDiv, chatBox.firstChild);
-        chatBox.scrollTop = 0;
+    
+        // Adjust scrollTop based on the actual height of the chatBox and the newly added message
+        const scrollHeight = chatBox.scrollHeight;
+    
+        // If the chat box exceeds its height, enable scrolling
+        if (scrollHeight > chatBox.clientHeight) {
+            chatBox.style.overflowY = 'scroll';
+        }
+    
+        // Scroll to the bottom to show the latest message
+        chatBox.scrollTop = scrollHeight - chatBox.clientHeight;
     }
+    
 
     async function sendMessage() {
         const userMessage = userInput.value.trim();
@@ -57,7 +71,13 @@ document.addEventListener("DOMContentLoaded", function () {
     userInput.addEventListener('input', function () {
         // Set the height to auto to adjust the input field dynamically
         this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
+        // Set a maximum height for the user input box
+        this.style.height = Math.min(maxInputHeight, this.scrollHeight) + 'px';
+
+        // Only set scrollTop if the user didn't scroll the chat box
+        if (chatBox.scrollTop === 0) {
+            chatBox.scrollTop = this.scrollHeight;
+        }
     });
 
     sendButton.addEventListener("click", sendMessage);
