@@ -5,8 +5,8 @@ body {
 }
 
 .row {
-    height: 100vh; /* Make the row take the full height of the viewport */
-    display: flex; /* Use flexbox for better control */
+    height: 100vh;
+    display: flex;
 }
 
 .col-lg-2 {
@@ -15,22 +15,22 @@ body {
 }
 
 .chat-container {
-    flex: 1; /* Make the chat container flex to fill available space */
+    flex: 1;
     display: flex;
     flex-direction: column;
     padding: 20px;
     border: 1px solid #ffffff;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    height: 100%; /* Make the chat container fill the entire height */
-    overflow-y: hidden; /* Hide the overflow for smooth scrolling */
+    height: 100%;
+    overflow-y: hidden;
 }
 
 .chat-box {
-    flex: 1; /* Allow the chat-box to take up remaining space */
+    flex: 1;
     overflow-y: auto;
     display: flex;
-    flex-direction: column-reverse; /* Reverse the order of messages */
+    flex-direction: column-reverse;
 }
 
 .chat-message {
@@ -38,13 +38,13 @@ body {
     padding: 8px;
     margin-bottom: 8px;
     border-radius: 8px;
-    align-self: flex-start; /* Align user messages to the left */
+    align-self: flex-start;
 }
 
 .user-input-container {
-    position: relative;
     display: flex;
-    align-items: center; /* Center items vertically */
+    align-items: center;
+    position: relative;
 }
 
 #user-input {
@@ -54,17 +54,21 @@ body {
     border-radius: 50px;
     background-color: #f0f0f0;
     overflow-wrap: break-word;
+    resize: none;
+    overflow-y: hidden;
+    transition: height 0.3s ease;
+    border: none; /* Remove border for input */
 }
 
 #send-button {
     position: absolute;
     top: 50%;
-    right: 12px; /* Adjust as needed */
+    right: 12px;
     transform: translateY(-50%);
-    background-color: rgba(114, 197, 167, 0.8); /* Adjust the RGB values and alpha channel (0.8 for 80% opacity) */
-    width: 40px; /* Set a fixed width */
-    height: 40px; /* Set a fixed height */
-    border-radius: 50%; /* Make it a circle */
+    background-color: rgba(114, 197, 167, 0.8);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     color: white;
     padding: 10px;
     text-align: center;
@@ -72,13 +76,11 @@ body {
     cursor: pointer;
 }
 
-/* Add these styles to your CSS file */
-
 .chat-bubble {
     display: inline-flex;
     margin-bottom: 8px;
-    border-radius: 8px; /* Adjust the border-radius to your preference */
-    max-width: 66%; /* Set the maximum width to 66% */
+    border-radius: 8px;
+    max-width: 66%;
 }
 
 .user-bubble, .ai-bubble {
@@ -86,21 +88,20 @@ body {
 }
 
 .user-bubble {
-    background-color: #2196f3; /* Change the background color as needed */
+    background-color: #2196f3;
     color: white;
-    padding: 10px 15px; /* Adjust padding to your preference */
-    margin-left: auto; /* Align AI bubbles to the right */
-    word-wrap: break-word; /* Allow words to break if they exceed the width */
-    text-align: left; /* Align text to the left */
+    padding: 10px 15px;
+    margin-left: auto;
+    word-wrap: break-word;
+    text-align: left;
 }
 
 .ai-bubble {
     display: flex;
-    background-color: #00ff11; /* Change the background color to match the user bubble */
+    background-color: #8d00b8;
     color: white;
-    padding: 10px 15px; /* Adjust padding to match the user bubble */
-    margin-right: auto; /* Align AI bubbles to the right */
-    word-wrap: break-word; /* Allow words to break if they exceed the width */
-    text-align: left; /* Align text to the left */
+    padding: 10px 15px;
+    margin-right: auto;
+    word-wrap: break-word;
+    text-align: left;
 }
-

@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
         messageDiv.className = isUser ? "chat-bubble user-bubble" : "chat-bubble ai-bubble";
 
         // Align user messages to the right and AI messages to the left
-        messageDiv.style.textAlign = isUser ? "left" : "left";
+        messageDiv.style.textAlign = isUser ? "right" : "left";
 
         chatBox.insertBefore(messageDiv, chatBox.firstChild);
         chatBox.scrollTop = 0;
@@ -49,9 +49,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function handleUserKeyPress(event) {
         if (event.key === "Enter") {
+            event.preventDefault(); // Prevent the default behavior (creating a new line)
             sendMessage();
         }
     }
+
+    userInput.addEventListener('input', function () {
+        // Set the height to auto to adjust the input field dynamically
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
 
     sendButton.addEventListener("click", sendMessage);
     userInput.addEventListener("keypress", handleUserKeyPress);
