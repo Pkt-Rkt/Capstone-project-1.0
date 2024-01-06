@@ -95,10 +95,12 @@ body {
 }
 
 .ai-bubble {
-    background-color: #4caf50; /* Change the background color as needed */
+    display: flex;
+    background-color: #00ff11; /* Change the background color to match the user bubble */
     color: white;
-    padding: 10px 15px; /* Adjust padding to your preference */
-    margin-left: 10px; /* Add margin to separate bubbles */
+    padding: 10px 15px; /* Adjust padding to match the user bubble */
+    margin-right: auto; /* Align AI bubbles to the right */
     word-wrap: break-word; /* Allow words to break if they exceed the width */
     text-align: left; /* Align text to the left */
 }
+
