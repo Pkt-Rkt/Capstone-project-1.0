@@ -6,16 +6,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function appendMessage(message, isUser) {
         const messageDiv = document.createElement("div");
-        messageDiv.className = isUser ? "user-message" : "bot-message";
         messageDiv.textContent = message;
+
+        // Add chat bubble styles
+        messageDiv.className = isUser ? "chat-bubble user-bubble" : "chat-bubble ai-bubble";
+
+        // Align user messages to the right and AI messages to the left
+        messageDiv.style.textAlign = isUser ? "right" : "left";
+
         chatBox.insertBefore(messageDiv, chatBox.firstChild);
         chatBox.scrollTop = 0;
     }
 
     async function sendMessage() {
         const userMessage = userInput.value.trim();
+        userInput.value = ""; // Clear the user input immediately
+
         if (userMessage !== "") {
-            appendMessage(`You: ${userMessage}`, true);
+            appendMessage(`${userMessage}`, true);
 
             try {
                 const response = await fetch("/api/sendMessage", {
@@ -36,10 +44,15 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
                 console.error("Error:", error.message);
             }
+        }
+    }
 
-            userInput.value = "";
+    function handleUserKeyPress(event) {
+        if (event.key === "Enter") {
+            sendMessage();
         }
     }
 
     sendButton.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", handleUserKeyPress);
 });
