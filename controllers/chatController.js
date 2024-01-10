@@ -1,3 +1,4 @@
+//controllers/chatController.js
 const readline = require("readline");
 const AIModel = require("../models/aiModel");
 const ConsoleView = require("../views/consoleView");
