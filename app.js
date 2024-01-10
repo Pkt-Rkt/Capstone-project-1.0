@@ -4,6 +4,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const AIModel = require("./models/aiModel");
+const ConversationModel = require("./models/conversationModel"); // Import the conversation model
 const ConsoleView = require("./views/consoleView");
 const ChatController = require("./controllers/chatController");
 const dotenv = require("dotenv");
@@ -40,50 +41,46 @@ const view = new ConsoleView();
 const controller = new ChatController(model, view);
 
 // Set up a simple route to handle incoming messages from the frontend
+// app.js
 app.post("/api/sendMessage", express.json(), async (req, res) => {
   const sessionId = req.session.id;
   const userInput = req.body.message;
 
   try {
-    // Use the AI model to generate a response, passing the session context
-    const aiResponse = await model.generateResponse(userInput, req.session.context);
+      console.log("Received message from user:", userInput);
 
-    // Update the session context with the latest information
-    req.session.context = aiResponse.sessionContext;
+      // Use the AI model to generate a response, passing the session context
+      const aiResponse = await model.generateResponse(userInput, req.session.context);
 
-    // Send the AI response back to the frontend
-    res.json({ response: aiResponse.response });
+      // Update the session context with the latest information
+      req.session.context = aiResponse.sessionContext;
+
+      // Store the conversation in the database
+      await storeConversation(sessionId, userInput, aiResponse.response);
+
+      // Send the AI response back to the frontend
+      res.json({ response: aiResponse.response });
   } catch (error) {
-    console.error("Error generating AI response:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+      console.error("Error generating AI response:", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-// Test MongoDB connection route
-app.get("/testDBConnection", async (req, res) => {
+
+// Store conversation in the database
+async function storeConversation(sessionId, userMessage, botResponse) {
   try {
-    // Assuming you have a model/schema for your data
-    const SessionModel = mongoose.model("Session", {
-      message: String,
+    const conversation = new ConversationModel({
+      sessionId,
+      userMessage,
+      botResponse,
     });
-
-    // Example: Insert a document into the "sessions" collection
-    const newSession = new SessionModel({ message: "hello" });
-    await newSession.save();
-
-    // Example: Query the database to find the inserted document
-    const result = await SessionModel.findOne({ message: "hello" });
-
-    if (result) {
-      res.json({ message: "MongoDB connection is successful!", data: result });
-    } else {
-      res.json({ message: "No data found in the database." });
-    }
+    await conversation.save();
   } catch (error) {
-    console.error("Error testing MongoDB connection:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error storing conversation:", error.message);
+    throw error;
   }
-});
+}
 
 // Serve the index.html file
 app.get("/", (req, res) => {
