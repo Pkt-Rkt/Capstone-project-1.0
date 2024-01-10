@@ -5,6 +5,29 @@ document.addEventListener("DOMContentLoaded", async function () {
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
 
+    async function storeConversation(userMessage, botResponse) {
+        try {
+            const response = await fetch("/api/storeConversation", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userMessage, botResponse }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to store conversation. Status: ${response.status}`);
+            }
+
+            // Since the response might not be JSON, handle text separately
+            const responseData = await response.text();
+
+            console.log("Conversation stored:", responseData);
+        } catch (error) {
+            console.error("Error storing conversation:", error.message);
+        }
+    }
+
     // Set a maximum height for the user input box (5 lines)
     const maxInputHeight = 5 * parseFloat(getComputedStyle(userInput).lineHeight);
 
@@ -97,6 +120,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                 const botResponse = `Luna: ${data.response}`;
                 appendMessage(botResponse, false); // 'isUser' is false for AI responses
+
+                // Store the conversation in MongoDB
+                await storeConversation(userMessage, data.response);
             } catch (error) {
                 console.error("Error:", error.message);
             }

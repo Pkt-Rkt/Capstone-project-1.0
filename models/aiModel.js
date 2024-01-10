@@ -43,7 +43,9 @@ class AIModel {
   async getPreviousMessages(sessionId) {
     try {
       // Retrieve previous messages from the database for the session
-      const messages = await ConversationModel.find({ sessionId }).lean();
+      const messages = await ConversationModel.find({ sessionId });
+
+      console.log("Fetched previous messages:", messages);
 
       return messages.map((message) => ({
         userMessage: message.userMessage,
@@ -62,7 +64,15 @@ class AIModel {
         userMessage,
         botResponse,
       });
+  
+      // Save the conversation to the database
       await conversation.save();
+  
+      console.log("Conversation stored:", conversation);
+  
+      // Add a log to check if the conversation is saved successfully
+      const savedConversation = await ConversationModel.findById(conversation._id);
+      console.log("Saved conversation retrieved:", savedConversation);
     } catch (error) {
       console.error("Error storing conversation:", error.message);
       throw error;
