@@ -1,3 +1,4 @@
+//views/consoleView.js
 class ConsoleView {
   displayResponse(response) {
     console.log(response);

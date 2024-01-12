@@ -2,11 +2,14 @@
 const mongoose = require("mongoose");
 
 const conversationSchema = new mongoose.Schema({
-  timestamp: { type: Date, default: Date.now },
-  userMessage: String,
-  botResponse: String,
+  sessionId: String,
+  conversation: [{
+    userMessage: String,
+    botResponse: String,
+  }],
+  timestamp: { type: Date, default: Date.now }
 });
 
-const ConversationModel = mongoose.model("Conversation", conversationSchema);
+const ConversationModel = mongoose.model("Conversations", conversationSchema);
 
 module.exports = ConversationModel;

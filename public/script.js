@@ -5,29 +5,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
 
-    async function storeConversation(userMessage, botResponse) {
-        try {
-            const response = await fetch("/api/storeConversation", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ userMessage, botResponse }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to store conversation. Status: ${response.status}`);
-            }
-
-            // Since the response might not be JSON, handle text separately
-            const responseData = await response.text();
-
-            console.log("Conversation stored:", responseData);
-        } catch (error) {
-            console.error("Error storing conversation:", error.message);
-        }
-    }
-
     // Set a maximum height for the user input box (5 lines)
     const maxInputHeight = 5 * parseFloat(getComputedStyle(userInput).lineHeight);
 
@@ -36,25 +13,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     function appendMessage(message, isUser) {
         const messageDiv = document.createElement("div");
         messageDiv.textContent = message;
-
-        // Add chat bubble styles
         messageDiv.className = isUser ? "chat-bubble user-bubble" : "chat-bubble ai-bubble";
-
-        // Align user messages and AI messages both align to the left
         messageDiv.style.textAlign = isUser ? "left" : "left";
-
-        // Add the message to the chat box
         chatBox.insertBefore(messageDiv, chatBox.firstChild);
-
-        // Adjust scrollTop based on the actual height of the chatBox and the newly added message
         const scrollHeight = chatBox.scrollHeight;
-
-        // If the chat box exceeds its height, enable scrolling
         if (scrollHeight > chatBox.clientHeight) {
             chatBox.style.overflowY = 'scroll';
         }
-
-        // Scroll to the bottom to show the latest message
         chatBox.scrollTop = scrollHeight - chatBox.clientHeight;
     }
 
@@ -91,38 +56,25 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     async function sendMessage() {
         console.log("sendMessage function called");
-
         const userMessage = userInput.value.trim();
         console.log("User Message:", userMessage);
-
-        userInput.value = ""; // Clear the user input immediately
-
+        userInput.value = "";
         if (userMessage !== "") {
-            appendMessage(`${userMessage}`, true); // Set the 'isUser' parameter to true for user messages
-
+            appendMessage(`${userMessage}`, true);
             try {
                 const response = await fetch("/api/sendMessage", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ message: userMessage }),
                 });
-
                 console.log("Full response:", response);
-
                 if (!response.ok) {
                     throw new Error("Failed to get AI response");
                 }
-
                 const data = await response.json();
                 console.log("AI Response Data:", data);
-
                 const botResponse = `Luna: ${data.response}`;
-                appendMessage(botResponse, false); // 'isUser' is false for AI responses
-
-                // Store the conversation in MongoDB
-                await storeConversation(userMessage, data.response);
+                appendMessage(botResponse, false);
             } catch (error) {
                 console.error("Error:", error.message);
             }
@@ -131,18 +83,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     function handleUserKeyPress(event) {
         if (event.key === "Enter") {
-            event.preventDefault(); // Prevent the default behavior (creating a new line)
+            event.preventDefault();
             sendMessage();
         }
     }
 
     userInput.addEventListener('input', function () {
-        // Set the height to auto to adjust the input field dynamically
         this.style.height = 'auto';
-        // Set a maximum height for the user input box
         this.style.height = Math.min(maxInputHeight, this.scrollHeight) + 'px';
-
-        // Only set scrollTop if the user didn't scroll the chat box
         if (chatBox.scrollTop === 0) {
             chatBox.scrollTop = this.scrollHeight;
         }
@@ -150,7 +98,5 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     sendButton.addEventListener("click", sendMessage);
     userInput.addEventListener("keypress", handleUserKeyPress);
-
-    // Call the function to send an initial prompt when the page loads
     sendInitialPrompt();
 });
