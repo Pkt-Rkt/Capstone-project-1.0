@@ -51,6 +51,18 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
   console.log("SessionId:", sessionId); // Log the sessionId
 
   const userInput = req.body.message;
+  const isInitialPrompt = req.body.isInitial;
+
+  // Retrieve previous messages from session
+  const previousMessages = req.session.conversationHistory || [];
+  console.log("Conversation history before saving:", previousMessages); // Log for inspection
+
+  console.log("Is Initial Prompt:", isInitialPrompt); // Added for verification
+
+  // Log when the initial prompt is received
+  if (isInitialPrompt) {
+    console.log("Initial prompt received:", userInput);
+  }
 
   try {
     console.log("Received message from user:", userInput);
@@ -69,7 +81,7 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
     req.session.conversationHistory = previousMessages;
 
     // Store the complete conversation in MongoDB
-    await storeCompleteConversation(sessionId, previousMessages);
+    await storeCompleteConversation(sessionId, previousMessages, isInitialPrompt);
 
     res.json({ response: aiResponse.response });
   } catch (error) {
@@ -77,6 +89,7 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -86,24 +99,26 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
-async function storeCompleteConversation(sessionId, conversationHistory) {
+async function storeCompleteConversation(sessionId, conversationHistory, isNewConversation) {
   try {
-    console.log("Connecting to MongoDB:", uri); // Log connection details
-    console.log("Finding and updating conversation:", sessionId); // Log operation details
+    console.log("Finding and updating conversation:", sessionId);
 
-    await client.connect();
+    let conversation;
+    if (isNewConversation) {
+      // Create a new conversation document
+      conversation = new ConversationModel({ sessionId, conversation: conversationHistory });
+    } else {
+      // Find the existing conversation document
+      conversation = await ConversationModel.findOne({ sessionId });
+      // Append only the latest message
+      const latestMessage = conversationHistory[conversationHistory.length - 1];
+      conversation.conversation.push(latestMessage);
+    }
 
-    sessionId = sessionId.toString();
-
-    const conversation = await client.db("Luna").collection("conversations")
-      .findOneAndUpdate(
-        { sessionId },
-        { $push: { conversation: { $each: conversationHistory } } },
-        { new: true }
-      );
-
-    console.log("Updated conversation:", conversation);
+    // Save the conversation document
+    await conversation.save();
+    console.log("Conversation saved successfully:", conversation);
   } catch (error) {
-    console.error("Error storing conversation:", error.message, error.stack); // Log full error details
+    console.error("Error storing conversation:", error.message, error.stack);
   }
 }
