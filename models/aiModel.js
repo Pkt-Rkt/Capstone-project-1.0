@@ -1,7 +1,13 @@
+//public/aiModel.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const dotenv = require("dotenv");
-const ConversationModel = require("./conversationModel");
 dotenv.config();
+
+function generateUniqueSessionId() {
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 7);
+  return `${timestamp}-${randomString}`;
+}
 
 class AIModel {
   constructor(apiKey) {
@@ -10,6 +16,12 @@ class AIModel {
 
   async generateResponse(input, sessionId) {
     try {
+      let isNewSession = false;
+      if (!sessionId) {
+        sessionId = generateUniqueSessionId();
+        isNewSession = true;
+      }
+
       const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
       const result = await model.generateContentStream([input]);
 
@@ -18,12 +30,8 @@ class AIModel {
         response += chunk.text();
       }
 
-      // Fetch previous messages from the database for the session
-      const previousMessages = await this.getPreviousMessages(sessionId);
-
       // Placeholder for session context, replace this with actual data
       const sessionContext = {
-        previousMessages,
         // Include relevant data for maintaining conversation context
         someKey: "someValue",
       };
@@ -31,22 +39,6 @@ class AIModel {
       return { response, sessionContext };
     } catch (error) {
       console.error("Error generating AI response:", error.message);
-      throw error;
-    }
-  }
-
-  async getPreviousMessages(sessionId) {
-    try {
-      const messages = await ConversationModel.find({ sessionId });
-
-      console.log("Fetched previous messages:", messages);
-
-      return messages.map((message) => ({
-        userMessage: message.userMessage,
-        botResponse: message.botResponse,
-      }));
-    } catch (error) {
-      console.error("Error fetching previous messages:", error.message);
       throw error;
     }
   }

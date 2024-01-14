@@ -3,41 +3,32 @@ const path = require("path");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const AIModel = require("./models/aiModel");
-const ConversationModel = require("./models/conversationModel"); // Import the conversation model
+const ConversationModel = require("./models/conversationModel");
 const ConsoleView = require("./views/consoleView");
 const ChatController = require("./controllers/chatController");
 const dotenv = require("dotenv");
-const { MongoClient } = require("mongodb"); // Import MongoClient
+const { MongoClient } = require("mongodb");
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+const uri = "mongodb://0.0.0.0:27017/Luna";
 
-const uri = "mongodb://0.0.0.0:27017/Luna"; // Define the MongoDB connection string
-
-// Connect to MongoDB
 mongoose.connect(uri)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-  });
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-const client = new MongoClient(uri); // Define MongoClient
-
+const client = new MongoClient(uri);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: false,
-    saveUninitialized: true,
-    store: new (require("express-session").MemoryStore)(),
-  })
-);
+app.use(session({
+  secret: process.env.SESSION_SECRET || "your-secret-key",
+  resave: false,
+  saveUninitialized: true,
+  store: new (require("express-session").MemoryStore)(),
+}));
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -46,50 +37,37 @@ const model = new AIModel(apiKey);
 const view = new ConsoleView();
 const controller = new ChatController(model, view);
 
-app.post("/api/sendMessage", express.json(), async (req, res) => {
-  const sessionId = req.session.id;
-  console.log("SessionId:", sessionId); // Log the sessionId
+function generateUniqueSessionId() {
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 7);
+  return `${timestamp}-${randomString}`;
+}
 
+app.post("/api/sendMessage", express.json(), async (req, res) => {
+  let sessionId;
   const userInput = req.body.message;
   const isInitialPrompt = req.body.isInitial;
 
-  // Retrieve previous messages from session
-  const previousMessages = req.session.conversationHistory || [];
-  console.log("Conversation history before saving:", previousMessages); // Log for inspection
-
-  console.log("Is Initial Prompt:", isInitialPrompt); // Added for verification
-
-  // Log when the initial prompt is received
   if (isInitialPrompt) {
-    console.log("Initial prompt received:", userInput);
+    sessionId = generateUniqueSessionId(); // Generate new session ID for initial prompt
+    req.session.sessionId = sessionId; // Update session ID
+    req.session.conversationHistory = []; // Reset conversation history
+  } else {
+    sessionId = req.session.sessionId || generateUniqueSessionId(); // Use existing or new session ID
+    req.session.sessionId = sessionId; // Ensure session ID is stored
   }
 
   try {
     console.log("Received message from user:", userInput);
-
-    // Retrieve previous messages from session
-    const previousMessages = req.session.conversationHistory || [];
-    console.log("Conversation history before saving:", previousMessages); // Log for inspection
-
-    // Generate AI response
     const aiResponse = await model.generateResponse(userInput, sessionId);
-
-    // Push new message to conversation array
-    previousMessages.push({ userMessage: userInput, botResponse: aiResponse.response });
-
-    // Update session's conversation history
-    req.session.conversationHistory = previousMessages;
-
-    // Store the complete conversation in MongoDB
-    await storeCompleteConversation(sessionId, previousMessages, isInitialPrompt);
-
+    req.session.conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
+    await storeCompleteConversation(sessionId, req.session.conversationHistory, isInitialPrompt);
     res.json({ response: aiResponse.response });
   } catch (error) {
     console.error("Error generating AI response:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -101,21 +79,17 @@ app.listen(port, () => {
 
 async function storeCompleteConversation(sessionId, conversationHistory, isNewConversation) {
   try {
-    console.log("Finding and updating conversation:", sessionId);
-
+    console.log("Storing conversation:", sessionId);
     let conversation;
     if (isNewConversation) {
-      // Create a new conversation document
       conversation = new ConversationModel({ sessionId, conversation: conversationHistory });
     } else {
-      // Find the existing conversation document
-      conversation = await ConversationModel.findOne({ sessionId });
-      // Append only the latest message
-      const latestMessage = conversationHistory[conversationHistory.length - 1];
-      conversation.conversation.push(latestMessage);
+      conversation = await ConversationModel.findOneAndUpdate(
+        { sessionId },
+        { $push: { conversation: conversationHistory[conversationHistory.length - 1] }},
+        { new: true, upsert: true }
+      );
     }
-
-    // Save the conversation document
     await conversation.save();
     console.log("Conversation saved successfully:", conversation);
   } catch (error) {
