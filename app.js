@@ -84,19 +84,31 @@ app.listen(port, () => {
 async function storeCompleteConversation(sessionId, conversationHistory, isNewConversation) {
   try {
     console.log("Storing conversation:", sessionId);
-    let conversation;
-    if (isNewConversation) {
-      conversation = new ConversationModel({ sessionId, conversation: conversationHistory });
+
+    // Check if the conversationHistory contains more than one message (excluding the initial prompt)
+    if (conversationHistory.length > 1) {
+      let conversation;
+
+      if (isNewConversation) {
+        // Since it's a new conversation, remove the first message (initial prompt)
+        const conversationToSave = conversationHistory.slice(1); // Skip the first message
+        conversation = new ConversationModel({ sessionId, conversation: conversationToSave });
+      } else {
+        // For ongoing conversations, simply push the latest message
+        conversation = await ConversationModel.findOneAndUpdate(
+          { sessionId },
+          { $push: { conversation: conversationHistory[conversationHistory.length - 1] }},
+          { new: true, upsert: true }
+        );
+      }
+
+      await conversation.save();
+      console.log("Conversation saved successfully:", conversation);
     } else {
-      conversation = await ConversationModel.findOneAndUpdate(
-        { sessionId },
-        { $push: { conversation: conversationHistory[conversationHistory.length - 1] }},
-        { new: true, upsert: true }
-      );
+      console.log("Skipping saving of initial prompt");
     }
-    await conversation.save();
-    console.log("Conversation saved successfully:", conversation);
   } catch (error) {
     console.error("Error storing conversation:", error.message, error.stack);
   }
 }
+
