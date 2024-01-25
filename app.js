@@ -51,7 +51,7 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
   if (isInitialPrompt) {
     sessionId = generateUniqueSessionId(); // Generate new session ID for initial prompt
     req.session.sessionId = sessionId; // Update session ID
-    req.session.conversationHistory = []; // Reset conversation history
+    req.session.conversationHistory = []; // Initialize conversation history
   } else {
     sessionId = req.session.sessionId || generateUniqueSessionId(); // Use existing or new session ID
     req.session.sessionId = sessionId; // Ensure session ID is stored
@@ -59,8 +59,12 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
 
   try {
     console.log("Received message from user:", userInput);
-    const aiResponse = await model.generateResponse(userInput, sessionId);
+    // Concatenate conversation history for context
+    const conversationHistory = req.session.conversationHistory.map(conv => `${conv.userMessage}\n${conv.botResponse}`).join("\n");
+
+    const aiResponse = await model.generateResponse(userInput, conversationHistory, sessionId);
     req.session.conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
+    
     await storeCompleteConversation(sessionId, req.session.conversationHistory, isInitialPrompt);
     res.json({ response: aiResponse.response });
   } catch (error) {
