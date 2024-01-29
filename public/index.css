@@ -155,3 +155,10 @@ html, body {
     word-wrap: break-word;
     text-align: left;
 }
+
+.sidebar-icon {
+    width: 40px; /* adjust the size as needed */
+    height: auto;
+    margin-right: 5px; /* adds some space between the icon and the text */
+    vertical-align: middle; /* aligns the icon with the text vertically */
+}

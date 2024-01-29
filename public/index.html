@@ -4,25 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="index.css">
     <title>AI Chatbot</title>
 </head>
 <body>
 
     <div class="container-fluid">
         <div class="row">
-    
-            <!-- Sidebar with logo and options -->
-            <div class="col-lg-2 bg-light">
-                <div class="mt-4 mb-4">
-                    <img src="./img/Luna.svg" alt="Logo" class="img-fluid mx-auto d-block">
+
+            <!-- New Sidebar with logo and options -->
+            <div class="col-sm-auto bg-light sticky-top">
+                <div class="d-flex flex-sm-column flex-row flex-nowrap bg-light align-items-center sticky-top">
+                    <!-- Logo -->
+                    <a href="/" class="d-block p-3 link-dark text-decoration-none" title="Logo">
+                        <img src="./img/Luna.svg" alt="Logo" class="img-fluid">
+                    </a>
+                    <!-- Nav items -->
+                    <ul class="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center align-items-center">
+                        <li class="nav-item">
+                            <a href="profile.html" class="nav-link py-3 px-2" title="Profile">
+                                <img src="./img/relieved.svg" alt="Profile" class="img-fluid sidebar-icon">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="history.html" class="nav-link py-3 px-2" title="History">
+                                <img src="./img/history.svg" alt="History" class="img-fluid sidebar-icon">
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <button class="btn btn-primary btn-block mb-2">Profile</button>
-                <button class="btn btn-primary btn-block">History</button>
-            </div>
-    
+            </div>            
+
             <!-- Chatbox -->
-            <div class="col-lg-10">
+            <div class="col-sm p-3 min-vh-100">
                 <div class="chat-box-container">
                     <!-- Add the gradient overlay here -->
                     <div class="gradient-overlay"></div>
@@ -33,10 +47,10 @@
                     </div>
                 </div>
             </div>
-    
+
         </div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
