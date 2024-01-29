@@ -1,28 +1,28 @@
 html, body {
-    height: 100%;
     margin: 0;
-    overflow: hidden;
+    min-height: 100%;
 }
 
 .container-fluid {
-    height: 100%;
+    min-height: 100vh; /* vh unit ensures it takes at least the full height of the viewport */
 }
 
 .row {
-    height: 100%;
     display: flex;
+    flex-wrap: wrap; /* Allows flex items to wrap onto multiple lines, as needed */
 }
 
-.col-lg-2 {
+.col-lg-2, .col-sm {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh; /* Fixed height to match the viewport and ensure sidebar and chat box container are the same */
+    overflow: hidden; /* Don't grow or shrink the sidebar, but allow it to be the size it needs */
 }
 
 .chat-box-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100%;
     padding: 20px;
     border: 1px solid #ffffff;
     border-radius: 8px;
