@@ -1,3 +1,4 @@
+//./app.js
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -35,17 +36,19 @@ function generateUniqueSessionId() {
 }
 
 app.post("/api/sendMessage", express.json(), async (req, res) => {
-  let sessionId = req.session.sessionId || generateUniqueSessionId();
+  const sessionId = req.session.sessionId || generateUniqueSessionId(); // Move this line here
   const userInput = req.body.message;
   const isInitialPrompt = req.body.isInitial;
 
   if (isInitialPrompt) {
-    req.session.sessionId = sessionId;
+    // Remove the sessionId assignment for initial prompts
     req.session.conversationHistory = [];
   }
 
   try {
-    const conversationHistory = req.session.conversationHistory.map(conv => `${conv.userMessage}\n${conv.botResponse}`).join("\n");
+    const conversationHistory = req.session.conversationHistory.map(
+      (conv) => `${conv.userMessage}\n${conv.botResponse}`
+    ).join("\n");
     const aiResponse = await model.generateResponse(userInput, conversationHistory, sessionId);
     req.session.conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
     await storeCompleteConversation(sessionId, req.session.conversationHistory, isInitialPrompt);
@@ -58,7 +61,7 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
 
 app.get("/api/getConversations", async (req, res) => {
   try {
-    const conversations = await ConversationModel.find({}, 'sessionId conversation').lean();
+    const conversations = await ConversationModel.find({}, 'sessionId conversation timestamp').lean();
     res.json(conversations);
   } catch (error) {
     console.error("Error fetching conversations:", error.message);
@@ -94,24 +97,33 @@ app.listen(port, () => {
 
 async function storeCompleteConversation(sessionId, conversationHistory, isNewConversation) {
   try {
-    if (conversationHistory.length > 1 || isNewConversation) {
-      let conversation;
-      if (isNewConversation) {
-        const conversationToSave = conversationHistory.slice(1);
-        conversation = new ConversationModel({ sessionId, conversation: conversationToSave });
+      console.log("Storing conversation:", sessionId);
+
+      // Check if the conversationHistory has more than the initial prompt and its response
+      if (conversationHistory.length > 2 || (conversationHistory.length === 2 && !isNewConversation)) {
+          let conversation;
+
+          if (isNewConversation) {
+              // Remove the initial prompt (first message) for new conversations
+              const conversationToSave = conversationHistory.slice(1); // Skip the initial prompt
+              conversation = new ConversationModel({ sessionId, conversation: conversationToSave });
+          } else {
+              // For ongoing conversations, update with the latest message
+              conversation = await ConversationModel.findOneAndUpdate(
+                  { sessionId },
+                  { $push: { conversation: conversationHistory[conversationHistory.length - 1] } },
+                  { new: true, upsert: true }
+              );
+          }
+
+          if (conversation) {
+              await conversation.save();
+              console.log("Conversation saved successfully:", conversation);
+          }
       } else {
-        conversation = await ConversationModel.findOneAndUpdate(
-          { sessionId },
-          { $push: { conversation: conversationHistory[conversationHistory.length - 1] }},
-          { new: true, upsert: true }
-        );
+          console.log("Skipping saving: Only initial prompt and response present.");
       }
-      await conversation.save();
-      console.log("Conversation saved successfully:", conversation);
-    } else {
-      console.log("Skipping saving of initial prompt");
-    }
   } catch (error) {
-    console.error("Error storing conversation:", error.message, error.stack);
+      console.error("Error storing conversation:", error.message, error.stack);
   }
 }

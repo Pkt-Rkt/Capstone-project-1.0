@@ -1,3 +1,4 @@
+//./public/script.js
 document.addEventListener("DOMContentLoaded", async function () {
     console.log("DOMContentLoaded event fired");
     const chatBox = document.getElementById("chat-box");
