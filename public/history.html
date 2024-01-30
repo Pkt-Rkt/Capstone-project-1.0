@@ -2,23 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="your-style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
     <title>Conversation History</title>
 </head>
 <body>
-    <section class="background-radial-gradient">
-        <div class="container">
-            <h1>Conversation History</h1>
-            <div id="conversationList" class="conversation-list">
-                <!-- Conversations will be loaded here -->
-            </div>
-        </div>
-    </section>
 
-    <script>
-        // JavaScript to load conversations from the server
-    </script>
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- Sidebar with logo and options -->
+            <div class="col-sm-auto bg-light sticky-top">
+                <div class="d-flex flex-sm-column flex-row flex-nowrap bg-light align-items-center sticky-top">
+                    <!-- Logo -->
+                    <a href="/index.html" class="d-block p-3 link-dark text-decoration-none" title="Logo">
+                        <img src="./img/Luna.svg" alt="Logo" class="img-fluid">
+                    </a>
+                    <!-- Nav items -->
+                    <ul class="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center align-items-center">
+                        <li class="nav-item">
+                            <a href="profile.html" class="nav-link py-3 px-2" title="Profile">
+                                <img src="./img/relieved.svg" alt="Profile" class="img-fluid sidebar-icon">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="history.html" class="nav-link py-3 px-2" title="History">
+                                <img src="./img/history.svg" alt="History" class="img-fluid sidebar-icon">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main content area for History Page -->
+            <div class="col-sm p-3 min-vh-100">
+                <div class="history-content">
+                    <h2>Conversation History</h2>
+                    <div id="historyList" class="list-group">
+                        <!-- Conversations will be appended here by history.js -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="history.js"></script>
 </body>
 </html>
