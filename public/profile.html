@@ -39,21 +39,19 @@
         <div class="col-sm p-3 min-vh-100">
             <div class="user-profile-content">
                 <div class="profile-card">
-                    <h2>User Profile</h2>
-                    <div class="profile-info">
                         <!-- Display user information here -->
-                        <div class="form-group">
-                            <label for="username">Username:</label>
-                            <input type="text" id="username" name="username" value="YourUsername" readonly>
+                        <div class="form-group profile-field">
+                            <label for="username"><i class="fas fa-user"></i> Username:</label> <!-- Icon added -->
+                            <input type="text" id="username" name="username" value="YourUsername" readonly class="form-control"> <!-- Bootstrap class added -->
                         </div>
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" id="email" name="email" value="youremail@example.com" readonly>
+                        <div class="form-group profile-field">
+                            <label for="email"><i class="fas fa-envelope"></i> Email:</label> <!-- Icon added -->
+                            <input type="email" id="email" name="email" value="youremail@example.com" readonly class="form-control"> <!-- Bootstrap class added -->
                         </div>
                         <!-- Edit button to make fields editable -->
-                        <button id="editProfile" class="btn btn-primary">Edit Profile</button>
+                        <button id="editProfile" class="btn edit-profile-button">Edit Profile</button> <!-- Class name changed -->
                         <!-- Save button to save changes -->
-                        <button id="saveProfile" class="btn btn-success" style="display: none;">Save Profile</button>
+                        <button id="saveProfile" class="btn save-profile-button" style="display: none;">Save Profile</button> <!-- Class name changed -->
                     </div>
                 </div>
             </div>
@@ -62,6 +60,4 @@
     </div>
 </div>
 
-<script src="profile.js"></script>
-</body>
-</html>
+<script src="
