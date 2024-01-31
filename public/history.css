@@ -24,8 +24,15 @@ html, body {
     display: flex;
     flex-direction: column;
     flex: 1; /* Allow columns to grow and take available vertical space */
-    overflow: hidden;
-    background-color: #c1e1c1; /* Light green background color for the sidebar */
+    overflow: hidden;    background-color: #c1e1c1; /* Light green background color for the sidebar */
+}
+
+.history-title {
+    position: sticky;
+    top: 0;
+    background-color: #c1e1c1;
+    padding: 5px;
+    z-index: 1; /* Ensure it appears above the list */
 }
 
 .history-content {
@@ -33,6 +40,22 @@ html, body {
     flex: 1;
     background-color: #c1e1c1; /* Light gray background color for the main content area */
     border-radius: 8px; /* Apply border-radius to all corners for a slightly rounded shape */
+    overflow-y: auto; /* Enable vertical scrolling for the content */
+    max-height: calc(100vh - 90px); /* Adjust the maximum height as needed */
+}
+
+/* Style the scrollbar */
+.history-content::-webkit-scrollbar {
+    width: 10px;
+}
+
+.history-content::-webkit-scrollbar-track {
+    background-color: #f2f2f200; /* Background color of the track */
+}
+
+.history-content::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color of the scrollbar thumb */
+    border-radius: 5px; /* Rounded corners for the thumb */
 }
 
 .nav-pills.nav-flush {
@@ -54,13 +77,13 @@ html, body {
     vertical-align: middle;
 }
 
-/* Style the history list items */
+/* Style the conversation content */
 .list-group-item {
     border: none;
     margin: 5px 0;
     padding: 10px;
     border-radius: 8px;
-    background-color: #f8f8f8; /* Light background color for list items */
+    background-color: #f8f8f8; /* Light background color for content items */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow for depth */
 }
 
@@ -68,4 +91,11 @@ html, body {
 .pastel-green {
     background-color: #b3ffb3; /* Light green */
     color: #333; /* Dark text color */
+}
+
+.delete-button {
+    width: 20px; /* Set the width and height as needed */
+    height: 20px;
+    cursor: pointer; /* Add a pointer cursor to indicate clickability */
+    margin-left: 10px; /* Add some spacing between conversation text and delete button */
 }
