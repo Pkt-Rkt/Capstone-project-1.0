@@ -2,7 +2,7 @@
 body {
     background-color: #f0fff0; /* Light pastel green background */
     font-family: sans-serif;
-    text-align: center;
+    text-align: center; /* Use flexbox for centered layout */
 }
 
 .container {
@@ -12,6 +12,10 @@ body {
     border-radius: 10px;
     background-color: #fff; /* White background for content area */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+    display: flex; /* Center elements using flexbox */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Logo styling */
@@ -22,6 +26,7 @@ header img {
 
 /* Form styling */
 form {
+    width: 100%; /* Stretch form to container width */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -30,6 +35,9 @@ form {
 
 .form-group {
     margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 label {
@@ -58,4 +66,11 @@ button[type="submit"] {
 a {
     color: #b3ffb3; /* Green link color */
     text-decoration: none;
+}
+
+/* Additional styling for improved responsiveness */
+@media only screen and (max-width: 768px) {
+    .container {
+        width: 90%; /* Responsive width on smaller screens */
+    }
 }

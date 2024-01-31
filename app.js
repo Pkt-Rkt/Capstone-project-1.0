@@ -14,6 +14,10 @@ const port = process.env.PORT || 3000;
 const uri = process.env.MONGODB_URI || "mongodb://0.0.0.0:27017/Luna";
 const loginRoutes = require("./routes/loginRoutes");
 const signupRoutes = require("./routes/signupRoutes");
+const bodyparser = require('body-parser');
+
+app.use(bodyparser.json()); // parse application/json
+app.use(bodyparser.urlencoded({ extended: false })); // parse urlencoded
 
 mongoose.connect(uri)
   .then(() => console.log('Connected to MongoDB'))
@@ -81,9 +85,9 @@ app.get("/login", (req, res) => {
   // Check if the user is already authenticated and redirect accordingly
   if (req.session.user) {
     // User is authenticated, redirect to a protected page
-    res.redirect("/history.html");
+    res.redirect("/index.html");
   } else {
-    // User is not authenticated, serve login.html
+    // User is not authenticated, serve login.html from the public folder
     res.sendFile(path.join(__dirname, "public", "login.html"));
   }
 });
@@ -100,7 +104,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-// Logout route
+// Logout route to clear user session
 app.get("/logout", (req, res) => {
   // Clear user session to log out
   req.session.user = undefined;
