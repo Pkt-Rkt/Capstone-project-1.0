@@ -52,11 +52,18 @@ function isAuthenticated(req, res, next) {
   }
 }
 
-// Protected routes
-app.get("/", isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// Serve login.html as the default landing page for unauthenticated users
+app.get("/", (req, res) => {
+  if (req.session.user) {
+    // User is authenticated, redirect to /index.html
+    res.redirect("/index.html");
+  } else {
+    // User is not authenticated, serve login.html
+    res.sendFile(path.join(__dirname, "public", "login.html"));
+  }
 });
 
+// Protected routes
 app.get("/index.html", isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -126,7 +133,6 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
   }
 });
 
-
 app.get("/api/getConversations", async (req, res) => {
   try {
     const conversations = await ConversationModel.find({}, 'sessionId conversation timestamp').lean();
@@ -153,10 +159,6 @@ app.get("/api/getConversation", async (req, res) => {
         console.error("Error fetching conversation:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
 });
 
 // Delete conversation route
@@ -186,6 +188,12 @@ async function storeCompleteConversation(sessionId, conversationHistory, isNewCo
   try {
     console.log("Storing conversation:", sessionId);
 
+    // Check if conversationHistory is empty
+    if (conversationHistory.length === 0) {
+      console.log("Conversation is empty, not saving.");
+      return;
+    }
+
     // Find the existing conversation or create a new one
     let conversation = await ConversationModel.findOne({ sessionId });
 
@@ -196,8 +204,14 @@ async function storeCompleteConversation(sessionId, conversationHistory, isNewCo
       });
     }
 
-    // Merge the existing conversation with the new conversationHistory
-    const mergedConversation = [...conversation.conversation, ...conversationHistory];
+    // Define the starting index for merging based on isNewConversation
+    const startIndex = isNewConversation ? 1 : 0; // Changed from 2 to 1 to skip the initial message
+
+    // Merge the existing conversation with the new conversationHistory (starting from the defined index)
+    const mergedConversation = [
+      ...conversation.conversation,
+      ...conversationHistory.slice(startIndex)
+    ];
 
     // Remove duplicates based on userMessage and botResponse
     const uniqueConversation = [];
@@ -211,6 +225,12 @@ async function storeCompleteConversation(sessionId, conversationHistory, isNewCo
       }
     }
 
+    // Check if the conversation is empty after removing duplicates
+    if (uniqueConversation.length === 0) {
+      console.log("Conversation is empty, not saving.");
+      return;
+    }
+
     // Update the conversation with the unique messages
     conversation.conversation = uniqueConversation;
 
@@ -220,3 +240,7 @@ async function storeCompleteConversation(sessionId, conversationHistory, isNewCo
     console.error("Error storing conversation:", error.message, error.stack);
   }
 }
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});

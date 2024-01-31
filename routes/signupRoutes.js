@@ -1,40 +1,39 @@
 const express = require("express");
 const path = require("path");
+const bcrypt = require("bcrypt");
 const User = require("../models/userModel"); // Import your user model here
 
 const router = express.Router();
+const saltRounds = 10; // Cost factor for hashing
 
-// Display the signup page
 router.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, "../views", "signup.html"));
 });
 
-// Handle signup form submission
 router.post("/signup", async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Validate the username and password
         if (!username || !password) {
-            return res.status(400).json({ error: "Username and password are required." });
+            return res.status(400).send("Username and password are required.");
         }
 
-        // Check if the username already exists in the database
         const existingUser = await User.findOne({ username });
-
         if (existingUser) {
-            return res.status(409).json({ error: "Username already exists. Please choose a different one." });
+            return res.status(409).send("Username already exists.");
         }
 
-        // If validation is successful, create a new user in the database
-        const newUser = new User({ username, password });
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
 
-        // Redirect to the login page after successful signup
-        res.redirect("/login");
+        // Store user information in the session
+        req.session.user = { id: newUser._id, username: newUser.username };
+
+        res.redirect("/login"); // Redirect user to the login page after successful signup
     } catch (error) {
         console.error("Error during signup:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).send("Internal Server Error");
     }
 });
 
