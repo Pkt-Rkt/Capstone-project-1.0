@@ -2,11 +2,14 @@
 <html>
 <head>
     <title>Login</title>
-    <link rel="stylesheet" href="login.css"> </head>
+    <link rel="stylesheet" href="login.css">
+</head>
 <body>
     <div class="container">
         <header>
-            <img src="./img/Luna.svg" alt="Logo"> </header>
+            <img src="./img/Luna.svg" alt="Logo">
+        </header>
+        <div id="error-message" class="error-message"></div> <!-- Place it here at the top -->
         <main>
             <form action="/login" method="POST">
                 <div class="form-group">
@@ -21,5 +24,6 @@
             </form>
             <p>Don't have an account? <a href="signup.html">Sign up</a></p> </main>
     </div>
+    <script src="login.js"></script>
 </body>
 </html>
