@@ -20,7 +20,6 @@ html, body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* Removed margin: 0 auto; since it's no longer necessary */
 }
 
 /* Logo styling */
@@ -31,6 +30,7 @@ header img {
 
 /* Form styling */
 form {
+    width: 100%; /* Stretch form to container width */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -39,6 +39,9 @@ form {
 
 .form-group {
     margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 label {
@@ -67,4 +70,11 @@ button[type="submit"] {
 a {
     color: #b3ffb3; /* Green link color */
     text-decoration: none;
+}
+
+/* Additional styling for improved responsiveness */
+@media only screen and (max-width: 768px) {
+    .container {
+        width: 90%; /* Responsive width on smaller screens */
+    }
 }
