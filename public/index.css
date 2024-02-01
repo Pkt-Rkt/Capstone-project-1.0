@@ -162,3 +162,9 @@ html, body {
     margin-right: 5px; /* adds some space between the icon and the text */
     vertical-align: middle; /* aligns the icon with the text vertically */
 }
+
+/* Logo Image Size Adjustment */
+a[title="Logo"] img {
+    width: 90px; /* Adjust this value to the desired width */
+    height: auto; /* This will maintain the aspect ratio of the logo */
+}
