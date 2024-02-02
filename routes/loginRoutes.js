@@ -18,29 +18,31 @@ router.get("/login", (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-    const { username, password } = req.body;
-  
-    try {
-      if (!username || !password) {
-        return res.status(400).send("Username and password are required.");
-      }
-  
-      const user = await User.findOne({ username });
-      if (!user) {
-        return res.status(401).send("Invalid username or password.");
-      }
-  
-      const passwordMatch = await bcrypt.compare(password, user.password);
-      if (!passwordMatch) {
-        return res.status(401).send("Invalid username or password.");
-      }
-  
-      req.session.user = { id: user._id, username: user.username };
-      res.redirect("/index.html"); // Redirect to a protected page after successful login
-    } catch (error) {
-      console.error("Error during login:", error);
-      res.status(500).send("Internal Server Error");
+  const { username, password } = req.body;
+
+  try {
+    if (!username || !password) {
+      return res.status(400).send("Username and password are required.");
     }
-  });
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).send("Invalid username or password.");
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).send("Invalid username or password.");
+    }
+
+    // This is where you set the session with the user's ID and username
+    req.session.user = { id: user._id, username: user.username };
+    res.redirect("/index.html"); // Redirect to a protected page after successful login
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 module.exports = router;

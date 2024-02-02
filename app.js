@@ -121,7 +121,17 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
     conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
     req.session.conversationHistory = conversationHistory;
 
-    await storeCompleteConversation(sessionId, conversationHistory, isInitial);
+    // Log the session user for debugging
+    console.log(req.session.user);
+
+    // Check if the user is stored in the session
+    if (!req.session.user) {
+      console.error('User session is not set.');
+      return res.status(401).json({ error: 'User is not logged in.' });
+    }
+
+    // Proceed with storing the conversation
+    await storeCompleteConversation(req, sessionId, conversationHistory, isInitial);
     res.json({ response: aiResponse.response });
   } catch (error) {
     console.error("Error generating AI response:", error.message);
@@ -132,8 +142,9 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
 
 
 app.get("/api/getConversations", async (req, res) => {
+  const userId = req.session.user.id; // Use user's ID from the session
   try {
-    const conversations = await ConversationModel.find({}, 'sessionId conversation timestamp').lean();
+    const conversations = await ConversationModel.find({ userId }, 'sessionId conversation timestamp').lean();
     res.json(conversations);
   } catch (error) {
     console.error("Error fetching conversations:", error.message);
@@ -191,8 +202,10 @@ app.delete("/api/deleteConversation", async (req, res) => {
   }
 });
 
-async function storeCompleteConversation(sessionId, conversationHistory, isNewConversation) {
+async function storeCompleteConversation(req, sessionId, conversationHistory, isNewConversation) {
   try {
+    // Get the user ID from the session
+    const userId = req.session.user.id;
     console.log("Storing conversation:", sessionId);
 
     // Check if conversationHistory is empty
@@ -202,17 +215,18 @@ async function storeCompleteConversation(sessionId, conversationHistory, isNewCo
     }
 
     // Find the existing conversation or create a new one
-    let conversation = await ConversationModel.findOne({ sessionId });
+    let conversation = await ConversationModel.findOne({ sessionId, userId });
 
     if (!conversation) {
       conversation = new ConversationModel({
+        userId, // Include the user's ID
         sessionId,
         conversation: [],
       });
     }
 
     // Define the starting index for merging based on isNewConversation
-    const startIndex = isNewConversation ? 1 : 0; // Changed from 2 to 1 to skip the initial message
+    const startIndex = isNewConversation ? 1 : 0;
 
     // Merge the existing conversation with the new conversationHistory (starting from the defined index)
     const mergedConversation = [
