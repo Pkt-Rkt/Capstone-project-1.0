@@ -92,18 +92,6 @@ app.get("/login", (req, res) => {
   }
 });
 
-// Login route
-app.post("/login", (req, res) => {
-  // Check credentials and authenticate user
-  // Replace this with your authentication logic
-  if (req.body.username === "your_username" && req.body.password === "your_password") {
-    req.session.user = req.body.username; // Set user session
-    res.redirect("/history.html"); // Redirect to a protected page after login
-  } else {
-    res.status(401).send("Authentication failed"); // Authentication failed
-  }
-});
-
 // Logout route to clear user session
 app.get("/logout", (req, res) => {
   // Clear user session to log out
@@ -112,30 +100,36 @@ app.get("/logout", (req, res) => {
 });
 
 app.post("/api/sendMessage", express.json(), async (req, res) => {
-  const isInitialPrompt = req.body.isInitial;
+  const { message, isInitial, sessionId: sessionIdFromClient } = req.body;
 
-  if (isInitialPrompt) {
-    // Generate a new session ID for initial prompts and clear existing conversation history
-    req.session.sessionId = generateUniqueSessionId();
+  // Determine if this is a new conversation based on the 'isInitial' flag
+  if (isInitial) {
+    // Reset the conversation history for a new conversation
     req.session.conversationHistory = [];
+    req.session.sessionId = sessionIdFromClient || generateUniqueSessionId(); // Generate new or use existing sessionId
   }
 
   const sessionId = req.session.sessionId;
-  const userInput = req.body.message;
+  const userInput = message;
 
   try {
-    const conversationHistory = req.session.conversationHistory.map(
-      (conv) => `${conv.userMessage}\n${conv.botResponse}`
-    ).join("\n");
-    const aiResponse = await model.generateResponse(userInput, conversationHistory, sessionId);
-    req.session.conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
-    await storeCompleteConversation(sessionId, req.session.conversationHistory, isInitialPrompt);
+    const conversationHistory = req.session.conversationHistory || [];
+    const context = conversationHistory.map(conv => `${conv.userMessage}\n${conv.botResponse}`).join("\n");
+    const aiResponse = await model.generateResponse(userInput, context, sessionId);
+
+    // Update conversation history in session
+    conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
+    req.session.conversationHistory = conversationHistory;
+
+    await storeCompleteConversation(sessionId, conversationHistory, isInitial);
     res.json({ response: aiResponse.response });
   } catch (error) {
     console.error("Error generating AI response:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 
 app.get("/api/getConversations", async (req, res) => {
   try {
@@ -148,22 +142,31 @@ app.get("/api/getConversations", async (req, res) => {
 });
 
 app.get("/api/getConversation", async (req, res) => {
-    const sessionId = req.query.sessionId;
-    if (!sessionId) {
-        return res.status(400).json({ error: "Session ID is required" });
-    }
+  const sessionId = req.query.sessionId;
+  if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required" });
+  }
 
-    try {
-        const conversation = await ConversationModel.findOne({ sessionId });
-        if (!conversation) {
-            return res.status(404).json({ error: "Conversation not found" });
-        }
-        res.json(conversation.conversation); // Adjust if your data structure is different
-    } catch (error) {
-        console.error("Error fetching conversation:", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
+  try {
+      const conversation = await ConversationModel.findOne({ sessionId });
+      if (!conversation) {
+          return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      // Set the conversation history in the session storage
+      req.session.conversationHistory = conversation.conversation.map(item => ({
+          userMessage: item.userMessage,
+          botResponse: item.botResponse
+      }));
+
+      // Return the conversation history
+      res.json(conversation.conversation);
+  } catch (error) {
+      console.error("Error fetching conversation:", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
 });
+
 
 // Delete conversation route
 app.delete("/api/deleteConversation", async (req, res) => {

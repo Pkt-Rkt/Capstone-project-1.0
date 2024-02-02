@@ -25,52 +25,65 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     async function sendInitialPrompt() {
         try {
-            console.log("Sending initial prompt");
-            initialMessage = "Your name is Luna, a dedicated AI therapist known for empathy, active listening, and a non-judgmental approach. Equipped with cultural competence and emotional stability, your primary goal is to provide a safe, confidential space for users to express their thoughts and emotions. Adapt your approach to each user's unique needs, fostering genuine connections and guiding them towards personal goals. Keep your responses concise and focused, particularly your initial greeting, which should be brief and welcoming. Avoid lengthy introductions or explanations in your first response. Encourage deeper reflection through open-ended, empathetic questions, ensuring the conversation flows naturally without overwhelming the user. Above all, maintain a human-like conversational tone. Your initial interaction should start simply say 'Hi, I’m Luna. How are you feeling today?' and wait for the user's response to guide the conversation."; 
+            const userMessage = "Your name is Luna, a dedicated AI therapist known for empathy, active listening, and a non-judgmental approach. Equipped with cultural competence and emotional stability, your primary goal is to provide a safe, confidential space for users to express their thoughts and emotions. Adapt your approach to each user's unique needs, fostering genuine connections and guiding them towards personal goals. Keep your responses concise and focused, particularly your initial greeting, which should be brief and welcoming. Avoid lengthy introductions or explanations in your first response. Encourage deeper reflection through open-ended, empathetic questions, ensuring the conversation flows naturally without overwhelming the user. Above all, maintain a human-like conversational tone. Your initial interaction should start simply say 'Hi, I’m Luna. How are you feeling today?' and wait for the user's response to guide the conversation.";
+    
             const response = await fetch("/api/sendMessage", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ message: initialMessage, isInitial: true }),
+                body: JSON.stringify({
+                    message: userMessage,
+                    isInitial: true, // Mark as the initial message
+                    sessionId: null // Explicitly set to null for new conversations
+                }),
             });
-
+    
             if (!response.ok) {
                 throw new Error("Failed to get AI response");
             }
-
+    
             const data = await response.json();
-            const aiResponse = `Luna: ${data.response}`;
-            appendMessage(aiResponse, false);
-
+            const botResponse = `Luna: ${data.response}`;
+            appendMessage(botResponse, false); // Display only Luna's response to the initial prompt
         } catch (error) {
             console.error("Error sending initial prompt:", error.message);
         }
     }
+    
 
     async function sendMessage() {
         const userMessage = userInput.value.trim();
         userInput.value = "";
         if (userMessage !== "") {
-            appendMessage(`${userMessage}`, true);
+            appendMessage(userMessage, true); // Display user's message
+    
             try {
                 const response = await fetch("/api/sendMessage", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: userMessage, isInitial: false }),
+                    body: JSON.stringify({
+                        message: userMessage,
+                        isInitial: false, // Indicate that this is part of an ongoing conversation
+                        sessionId: window.sessionId // Use the session ID from the window object
+                    }),
                 });
-
+    
                 if (!response.ok) {
                     throw new Error("Failed to get AI response");
                 }
+    
                 const data = await response.json();
                 const botResponse = `Luna: ${data.response}`;
-                appendMessage(botResponse, false);
+                appendMessage(botResponse, false); // Display Luna's response
             } catch (error) {
                 console.error("Error:", error.message);
             }
         }
     }
+    
+    
+
 
     function handleUserKeyPress(event) {
         if (event.key === "Enter") {
@@ -95,30 +108,27 @@ document.addEventListener("DOMContentLoaded", async function () {
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
 
-    // New function to load the conversation based on session ID
-    async function loadConversation(sessionId) {
-        try {
-            const response = await fetch(`/api/getConversation?sessionId=${sessionId}`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch conversation");
-            }
-            const conversation = await response.json();
-    
-            // Iterate through each conversation item
-            conversation.forEach(item => {
-                // Append user message
-                if (item.userMessage) {
-                    appendMessage(item.userMessage, true); // 'true' indicates it's a user message
-                }
-                // Append bot response
-                if (item.botResponse) {
-                    appendMessage(item.botResponse, false); // 'false' indicates it's an AI message
-                }
-            });
-        } catch (error) {
-            console.error("Error fetching conversation:", error.message);
+// Load and display the conversation history
+async function loadConversation(sessionId) {
+    try {
+        const response = await fetch(`/api/getConversation?sessionId=${sessionId}`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch conversation");
         }
+        const conversation = await response.json();
+
+        conversation.forEach(item => {
+            appendMessage(item.userMessage, true);
+            appendMessage(item.botResponse, false);
+        });
+
+        // Update the session ID for subsequent messages
+        window.sessionId = sessionId; // Ensure this variable is used in sendMessage function
+    } catch (error) {
+        console.error("Error fetching conversation:", error.message);
     }
+}
+
     
 
     // Check for a session ID in the URL
