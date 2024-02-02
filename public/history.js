@@ -17,18 +17,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function displayConversations(conversations) {
         conversations.forEach(convo => {
-            if (convo.conversation && convo.conversation.length > 0 && convo.timestamp) {
-                const firstMessage = convo.conversation[0].userMessage;
-                const titleContext = firstMessage.length > 50 ? `${firstMessage.substring(0, 47)}...` : firstMessage;
+            // Check if the conversation has more than one message to ensure there's a message to display after skipping the first
+            if (convo.conversation && convo.conversation.length > 1 && convo.timestamp) {
+                // Start from the second message (index 1) instead of the first message (index 0)
+                const firstMessageToShow = convo.conversation[1].userMessage;
+                const titleContext = firstMessageToShow.length > 50 ? `${firstMessageToShow.substring(0, 47)}...` : firstMessageToShow;
                 const timestamp = new Date(convo.timestamp);
                 const formattedDate = timestamp.toLocaleDateString(undefined, {
                     year: 'numeric', month: 'short', day: 'numeric',
                     hour: '2-digit', minute: '2-digit'
                 });
-
+    
                 const convoElement = document.createElement("div");
                 convoElement.classList.add("d-flex", "justify-content-between", "align-items-center", "list-group-item", "list-group-item-action");
-
+    
                 const convoLink = document.createElement("a");
                 convoLink.href = `index.html?sessionId=${convo.sessionId}`;
                 convoLink.textContent = `"${titleContext}" - ${formattedDate}`;
@@ -38,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     window.location.href = convoLink.href;
                 });
                 convoElement.appendChild(convoLink);
-
+    
                 const deleteButton = document.createElement("img");
                 deleteButton.src = "./img/delete.svg";
                 deleteButton.alt = "Delete";
@@ -62,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+    
 
     async function updateSessionIdOnServer(sessionId) {
         try {
