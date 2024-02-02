@@ -1,4 +1,3 @@
-// login.js
 document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.querySelector("form");
     const usernameInput = document.getElementById("username");
@@ -20,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             if (response.ok) {
-                // Redirect to a protected page after successful login
+                // Redirect after successful login
                 window.location.href = "/index.html";
             } else {
                 const errorMessage = await response.text();

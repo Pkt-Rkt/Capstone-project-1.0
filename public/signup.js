@@ -1,4 +1,3 @@
-// signup.js
 document.addEventListener("DOMContentLoaded", function () {
     const signupForm = document.querySelector("form");
     const usernameInput = document.getElementById("username");

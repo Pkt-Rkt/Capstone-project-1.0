@@ -1,8 +1,7 @@
-//routes/signupRoutes.js
 const express = require("express");
 const path = require("path");
 const bcrypt = require("bcrypt");
-const User = require("../models/userModel"); // Import your user model here
+const User = require("../models/userModel");
 
 const router = express.Router();
 const saltRounds = 10; // Cost factor for hashing

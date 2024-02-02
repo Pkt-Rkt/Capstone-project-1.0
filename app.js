@@ -1,4 +1,3 @@
-// ./app.js
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -7,41 +6,50 @@ const AIModel = require("./models/aiModel");
 const ConversationModel = require("./models/conversationModel");
 const dotenv = require("dotenv");
 
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-const uri = process.env.MONGODB_URI || "mongodb://0.0.0.0:27017/Luna";
+const uri = process.env.MONGODB_URI;
 const loginRoutes = require("./routes/loginRoutes");
 const signupRoutes = require("./routes/signupRoutes");
 const bodyparser = require('body-parser');
 
-app.use(bodyparser.json()); // parse application/json
-app.use(bodyparser.urlencoded({ extended: false })); // parse urlencoded
+// Parse JSON requests
+app.use(bodyparser.json());
+// Parse URL-encoded requests 
+app.use(bodyparser.urlencoded({ extended: false }));
 
+// Connect to MongoDB using Mongoose
 mongoose.connect(uri)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
+// Configure Express session middleware
 app.use(session({
+  // Use a secret key for session encryption
   secret: process.env.SESSION_SECRET || "your-secret-key",
   resave: false,
   saveUninitialized: true,
+  // Use in-memory storage for sessions
   store: new (require("express-session").MemoryStore)(),
 }));
 
+// Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, "public")));
 
 const apiKey = process.env.API_KEY;
 const model = new AIModel(apiKey);
 
+// Generate a unique session ID for each session
 function generateUniqueSessionId() {
   const timestamp = Date.now();
   const randomString = Math.random().toString(36).substring(2, 7);
   return `${timestamp}-${randomString}`;
 }
 
-// Include login and signup routes before serving login.html
+// Login and signup routes
 app.use("/", loginRoutes);
 app.use("/", signupRoutes);
 
@@ -50,10 +58,7 @@ function isAuthenticated(req, res, next) {
   if (req.session.user) {
     // User is authenticated
     next();
-  } else {
-    // User is not authenticated, redirect to login page
-    res.redirect("/login");
-  }
+  } 
 }
 
 // Serve login.html as the default landing page for unauthenticated users
@@ -61,23 +66,7 @@ app.get("/", (req, res) => {
   if (req.session.user) {
     // User is authenticated, redirect to /index.html
     res.redirect("/index.html");
-  } else {
-    // User is not authenticated, serve login.html
-    res.sendFile(path.join(__dirname, "public", "login.html"));
-  }
-});
-
-// Protected routes
-app.get("/index.html", isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-app.get("/history.html", isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "history.html"));
-});
-
-app.get("/profile.html", isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "profile.html"));
+  } 
 });
 
 // Serve login.html as the default landing page
@@ -94,7 +83,6 @@ app.get("/login", (req, res) => {
 
 // Logout route to clear user session
 app.get("/logout", (req, res) => {
-  // Clear user session to log out
   req.session.user = undefined;
   res.redirect("/login"); // Redirect to login page after logout
 });
@@ -106,7 +94,8 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
   if (isInitial) {
     // Reset the conversation history for a new conversation
     req.session.conversationHistory = [];
-    req.session.sessionId = sessionIdFromClient || generateUniqueSessionId(); // Generate new or use existing sessionId
+    // Generate new or use existing sessionId
+    req.session.sessionId = sessionIdFromClient || generateUniqueSessionId();
   }
 
   const sessionId = req.session.sessionId;
@@ -115,29 +104,36 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
   try {
     const conversationHistory = req.session.conversationHistory || [];
     const context = conversationHistory.map(conv => `${conv.userMessage}\n${conv.botResponse}`).join("\n");
-    const aiResponse = await model.generateResponse(userInput, context, sessionId);
 
-    // Update conversation history in session
-    conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
-    req.session.conversationHistory = conversationHistory;
-
-    // Log the session user for debugging
-    console.log(req.session.user);
-
-    // Check if the user is stored in the session
+    // Check if the user is authenticated
     if (!req.session.user) {
-      console.error('User session is not set.');
-      return res.status(401).json({ error: 'User is not logged in.' });
-    }
+      // User is not authenticated (guest user), retain the current conversation temporarily in the session
+      const aiResponse = await model.generateResponse(userInput, context, sessionId);
+      conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
+      req.session.conversationHistory = conversationHistory;
+      res.json({ response: aiResponse.response });
+    } else {
+      // User is authenticated, proceed with saving the conversation
+      const aiResponse = await model.generateResponse(userInput, context, sessionId);
 
-    // Proceed with storing the conversation
-    await storeCompleteConversation(req, sessionId, conversationHistory, isInitial);
-    res.json({ response: aiResponse.response });
+      // Update conversation history in session
+      conversationHistory.push({ userMessage: userInput, botResponse: aiResponse.response });
+      req.session.conversationHistory = conversationHistory;
+
+      // Log the session user for debugging
+      console.log(req.session.user);
+
+      // Proceed with storing the conversation
+      await storeCompleteConversation(req, sessionId, conversationHistory, isInitial);
+
+      res.json({ response: aiResponse.response });
+    }
   } catch (error) {
     console.error("Error generating AI response:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 
 
@@ -157,7 +153,6 @@ app.get("/api/getConversations", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 app.get("/api/getConversation", async (req, res) => {
   const sessionId = req.query.sessionId;
@@ -226,7 +221,7 @@ async function storeCompleteConversation(req, sessionId, conversationHistory, is
 
     if (!conversation) {
       conversation = new ConversationModel({
-        userId, // Include the user's ID
+        userId,
         sessionId,
         conversation: [],
       });
@@ -235,7 +230,7 @@ async function storeCompleteConversation(req, sessionId, conversationHistory, is
     // Define the starting index for merging based on isNewConversation
     const startIndex = isNewConversation ? 1 : 0;
 
-    // Merge the existing conversation with the new conversationHistory (starting from the defined index)
+    // Merge the existing conversation with the new conversationHistory
     const mergedConversation = [
       ...conversation.conversation,
       ...conversationHistory.slice(startIndex)

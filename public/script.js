@@ -1,11 +1,8 @@
-//./public/script.js
 document.addEventListener("DOMContentLoaded", async function () {
     console.log("DOMContentLoaded event fired");
     const chatBox = document.getElementById("chat-box");
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
-
-    // Set a maximum height for the user input box (5 lines)
     const maxInputHeight = 5 * parseFloat(getComputedStyle(userInput).lineHeight);
 
     let initialMessage = "";
@@ -56,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const userMessage = userInput.value.trim();
         userInput.value = "";
         if (userMessage !== "") {
-            appendMessage(userMessage, true); // Display user's message
+            appendMessage(userMessage, true);
     
             try {
                 const response = await fetch("/api/sendMessage", {
@@ -64,8 +61,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         message: userMessage,
-                        isInitial: false, // Indicate that this is part of an ongoing conversation
-                        sessionId: window.sessionId // Use the session ID from the window object
+                        isInitial: false,
+                        sessionId: window.sessionId 
                     }),
                 });
     
@@ -123,7 +120,7 @@ async function loadConversation(sessionId) {
         });
 
         // Update the session ID for subsequent messages
-        window.sessionId = sessionId; // Ensure this variable is used in sendMessage function
+        window.sessionId = sessionId;
     } catch (error) {
         console.error("Error fetching conversation:", error.message);
     }

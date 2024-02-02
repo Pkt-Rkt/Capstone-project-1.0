@@ -1,15 +1,14 @@
-//routes/loginRoutes.js
 const express = require("express");
 const path = require("path");
 const bcrypt = require("bcrypt");
-const User = require("../models/userModel"); // Assuming you have a User model set up for MongoDB
+const User = require("../models/userModel");
 
 const router = express.Router();
 
 router.get("/login", (req, res) => {
     // Check if the user is already authenticated and redirect accordingly
     if (req.session.user) {
-        // User is authenticated, redirect to a protected page (e.g., dashboard)
+        // User is authenticated, redirect to a protected page
         res.redirect("/index.html");
     } else {
         // User is not authenticated, serve the login page
