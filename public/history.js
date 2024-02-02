@@ -1,6 +1,8 @@
+// When the document is loaded, fetch conversations
 document.addEventListener("DOMContentLoaded", function () {
     fetchConversations();
 
+    // Fetch conversations from the server
     async function fetchConversations() {
         try {
             const response = await fetch("/api/getConversations");
@@ -8,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("Failed to fetch conversations");
             }
             const conversations = await response.json();
+            // Sort conversations by timestamp
             const sortedConversations = conversations.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
             displayConversations(sortedConversations);
         } catch (error) {
@@ -15,11 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Display conversations on the page
     function displayConversations(conversations) {
         conversations.forEach(convo => {
-            // Check if the conversation has more than one message to ensure there's a message to display after skipping the first
             if (convo.conversation && convo.conversation.length > 1 && convo.timestamp) {
-                // Start from the second message (index 1) instead of the first message (index 0)
                 const firstMessageToShow = convo.conversation[1].userMessage;
                 const titleContext = firstMessageToShow.length > 50 ? `${firstMessageToShow.substring(0, 47)}...` : firstMessageToShow;
                 const timestamp = new Date(convo.timestamp);
@@ -28,9 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     hour: '2-digit', minute: '2-digit'
                 });
     
+                // Create conversation element
                 const convoElement = document.createElement("div");
                 convoElement.classList.add("d-flex", "justify-content-between", "align-items-center", "list-group-item", "list-group-item-action");
     
+                // Create link for conversation
                 const convoLink = document.createElement("a");
                 convoLink.href = `index.html?sessionId=${convo.sessionId}`;
                 convoLink.textContent = `"${titleContext}" - ${formattedDate}`;
@@ -41,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
                 convoElement.appendChild(convoLink);
     
+                // Create delete button for conversation
                 const deleteButton = document.createElement("img");
                 deleteButton.src = "./img/delete.svg";
                 deleteButton.alt = "Delete";
@@ -65,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     
-
+    // Update the session ID on the server
     async function updateSessionIdOnServer(sessionId) {
         try {
             const response = await fetch("/api/setSessionId", {

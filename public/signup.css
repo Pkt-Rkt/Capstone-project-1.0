@@ -1,12 +1,12 @@
 /* General styling */
 html, body {
-    height: 100%; /* Full height for body to enable vertical centering */
-    margin: 0; /* Reset default margin */
-    background-color: #f0fff0; /* Light pastel green background */
+    height: 100%;
+    margin: 0;
+    background-color: #f0fff0;
     font-family: sans-serif;
-    display: flex; /* Use flexbox for centered layout */
-    justify-content: center; /* Centers horizontally */
-    align-items: center; /* Centers vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
 }
 
@@ -14,13 +14,12 @@ html, body {
     width: 500px;
     padding: 50px;
     border-radius: 10px;
-    background-color: #fff; /* White background for content area */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
-    display: flex; /* Center elements using flexbox */
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* Removed margin: 0 auto; since it's no longer necessary */
 }
 
 /* Logo styling */
@@ -31,7 +30,7 @@ header img {
 
 /* Form styling */
 form {
-    width: 100%; /* Stretch form to container width */
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -59,7 +58,7 @@ input[type="password"] {
 }
 
 button[type="submit"] {
-    background-color: #4CAF50; /* Green button */
+    background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -69,13 +68,13 @@ button[type="submit"] {
 
 /* Signup link styling */
 a {
-    color: #b3ffb3; /* Green link color */
+    color: #b3ffb3;
     text-decoration: none;
 }
 
 /* Additional styling for improved responsiveness */
 @media only screen and (max-width: 768px) {
     .container {
-        width: 90%; /* Responsive width on smaller screens */
+        width: 90%;
     }
 }

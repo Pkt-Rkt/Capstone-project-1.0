@@ -1,6 +1,9 @@
+// Self-invoking async function to use await at the top level
 (async () => {
     const chai = await import('chai');
     const expect = chai.expect;
+
+    // Import the function to test
     const { generateUniqueSessionId } = require('../path-to-your-file');
   
     describe('generateUniqueSessionId', function() {

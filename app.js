@@ -1,3 +1,4 @@
+// Import required modules and initialize Express app
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -6,7 +7,6 @@ const AIModel = require("./models/aiModel");
 const ConversationModel = require("./models/conversationModel");
 const dotenv = require("dotenv");
 
-// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
@@ -16,19 +16,16 @@ const loginRoutes = require("./routes/loginRoutes");
 const signupRoutes = require("./routes/signupRoutes");
 const bodyparser = require('body-parser');
 
-// Parse JSON requests
 app.use(bodyparser.json());
-// Parse URL-encoded requests 
 app.use(bodyparser.urlencoded({ extended: false }));
 
-// Connect to MongoDB using Mongoose
+// Database connection
 mongoose.connect(uri)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Configure Express session middleware
+// Middleware for parsing request bodies and managing sessions
 app.use(session({
-  // Use a secret key for session encryption
   secret: process.env.SESSION_SECRET || "your-secret-key",
   resave: false,
   saveUninitialized: true,
@@ -42,14 +39,14 @@ app.use(express.static(path.join(__dirname, "public")));
 const apiKey = process.env.API_KEY;
 const model = new AIModel(apiKey);
 
-// Generate a unique session ID for each session
+// Generate a unique session ID for each conversation
 function generateUniqueSessionId() {
   const timestamp = Date.now();
   const randomString = Math.random().toString(36).substring(2, 7);
   return `${timestamp}-${randomString}`;
 }
 
-// Login and signup routes
+// Use route handlers
 app.use("/", loginRoutes);
 app.use("/", signupRoutes);
 
@@ -61,7 +58,7 @@ function isAuthenticated(req, res, next) {
   } 
 }
 
-// Serve login.html as the default landing page for unauthenticated users
+// Route for the default landing page
 app.get("/", (req, res) => {
   if (req.session.user) {
     // User is authenticated, redirect to /index.html
@@ -81,12 +78,13 @@ app.get("/login", (req, res) => {
   }
 });
 
-// Logout route to clear user session
+// Route for logging out
 app.get("/logout", (req, res) => {
   req.session.user = undefined;
-  res.redirect("/login"); // Redirect to login page after logout
+  res.redirect("/login");
 });
 
+// Route for sending messages to A
 app.post("/api/sendMessage", express.json(), async (req, res) => {
   const { message, isInitial, sessionId: sessionIdFromClient } = req.body;
 
@@ -134,11 +132,9 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
   }
 });
 
-
-
-
+// Route for fetching conversation history
 app.get("/api/getConversations", async (req, res) => {
-  // Check if the user is authenticated and has a valid user ID
+  // Fetch and return all conversations for the authenticated user
   if (!req.session.user || !req.session.user.id) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -154,6 +150,7 @@ app.get("/api/getConversations", async (req, res) => {
   }
 });
 
+// Route for fetching a specific conversation
 app.get("/api/getConversation", async (req, res) => {
   const sessionId = req.query.sessionId;
   if (!sessionId) {
@@ -181,7 +178,7 @@ app.get("/api/getConversation", async (req, res) => {
 });
 
 
-// Delete conversation route
+// Route for deleting a conversation
 app.delete("/api/deleteConversation", async (req, res) => {
   const sessionId = req.query.sessionId;
   if (!sessionId) {
@@ -189,7 +186,7 @@ app.delete("/api/deleteConversation", async (req, res) => {
   }
 
   try {
-    // Find and delete the conversation with the given sessionId
+    // Delete a specific conversation based on session ID
     const deletedConversation = await ConversationModel.findOneAndDelete({ sessionId });
 
     if (!deletedConversation) {
@@ -204,6 +201,7 @@ app.delete("/api/deleteConversation", async (req, res) => {
   }
 });
 
+// Route for fetching conversation history
 async function storeCompleteConversation(req, sessionId, conversationHistory, isNewConversation) {
   try {
     // Get the user ID from the session
@@ -264,6 +262,7 @@ async function storeCompleteConversation(req, sessionId, conversationHistory, is
   }
 }
 
+// Start the Express server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

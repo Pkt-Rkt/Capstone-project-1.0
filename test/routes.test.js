@@ -1,3 +1,4 @@
+// Set up Chai and Chai-HTTP for testing HTTP endpoints
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app.js');
@@ -5,7 +6,10 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
+// Test suite for Express routes
 describe('Express Routes', function() {
+
+  // Test suite for GET /login route
   describe('GET /login', function() {
     it('should return the login page', function(done) {
       chai.request(app)
@@ -18,6 +22,7 @@ describe('Express Routes', function() {
     });
   });
 
+  // Test suite for POST /login route
   describe('POST /login', function() {
     it('should authenticate a user with valid credentials', function(done) {
       chai.request(app)
@@ -30,6 +35,7 @@ describe('Express Routes', function() {
         });
     });
 
+    // Test case for failed authentication due to invalid credentials
     it('should reject login with invalid credentials', function(done) {
       chai.request(app)
         .post('/login')
@@ -41,6 +47,7 @@ describe('Express Routes', function() {
     });
   });
 
+  // Test suite for GET /signup route
   describe('GET /signup', function() {
     it('should return the signup page', function(done) {
       chai.request(app)
@@ -53,6 +60,7 @@ describe('Express Routes', function() {
     });
   });
 
+  // Test suite for POST /signup route
   describe('POST /signup', function() {
     it('should create a new user with valid credentials', function(done) {
       chai.request(app)
@@ -65,6 +73,7 @@ describe('Express Routes', function() {
         });
     });
 
+    // Test case for failed signup due to missing credentials
     it('should reject signup with missing credentials', function(done) {
       chai.request(app)
         .post('/signup')
@@ -75,6 +84,7 @@ describe('Express Routes', function() {
         });
     });
 
+    // Test case for failed signup due to mismatched passwords
     it('should reject signup with mismatched passwords', function(done) {
       chai.request(app)
         .post('/signup')
@@ -85,6 +95,7 @@ describe('Express Routes', function() {
         });
     });
 
+    // Test case for failed signup due to an existing username
     it('should reject signup with an existing username', function(done) {
       chai.request(app)
         .post('/signup')
