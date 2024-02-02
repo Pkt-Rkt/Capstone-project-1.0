@@ -142,7 +142,13 @@ app.post("/api/sendMessage", express.json(), async (req, res) => {
 
 
 app.get("/api/getConversations", async (req, res) => {
-  const userId = req.session.user.id; // Use user's ID from the session
+  // Check if the user is authenticated and has a valid user ID
+  if (!req.session.user || !req.session.user.id) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const userId = req.session.user.id;
+
   try {
     const conversations = await ConversationModel.find({ userId }, 'sessionId conversation timestamp').lean();
     res.json(conversations);
@@ -151,6 +157,7 @@ app.get("/api/getConversations", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 app.get("/api/getConversation", async (req, res) => {
   const sessionId = req.query.sessionId;
